@@ -1,5 +1,5 @@
 export const waait = () =>
-  new Promise((res) => setTimeout(res, Math.random() * 2000));
+  new Promise((res) => setTimeout(res, Math.random() * 800));
 
 // generateRandomColor()
 const generateRandomColor = () => {
@@ -10,6 +10,12 @@ const generateRandomColor = () => {
 // Local storage
 export const fetchData = (key) => {
   return JSON.parse(localStorage.getItem(key));
+};
+
+// Get all item from localStorage
+export const getAllMatchingItems = ({ category, key, value }) => {
+  const data = fetchData(category) ?? [];
+  return data.filter((item) => item[key] === value);
 };
 
 // create budget
@@ -28,6 +34,17 @@ export const createBudget = ({ name, amount }) => {
   );
 };
 
+// delete expense from localStorage
+export const deleteItem = ({ key, id }) => {
+  const existingData = fetchData(key);
+
+  if (id) {
+    const newData = existingData.filter((item) => item.id !== id);
+    return localStorage.setItem(key, JSON.stringify(newData));
+  }
+  return localStorage.removeItem(key);
+};
+
 // create expense
 export const createExpense = ({ name, amount, budgetId }) => {
   const newItem = {
@@ -44,32 +61,30 @@ export const createExpense = ({ name, amount, budgetId }) => {
   );
 };
 
-// delete item
-export const deleteItem = ({ key }) => {
-  return localStorage.removeItem(key);
-};
-
 // Total spen by budget
 export const calculateSpentByBudget = (budgetId) => {
   const expenses = fetchData("expenses") ?? [];
   const budgetSpent = expenses.reduce((acc, expense) => {
     // check if the expenseId === budgetId i passed in
-    if (expense.budgetId !== budgetId) return acc
+    if (expense.budgetId !== budgetId) return acc;
 
     // add the current amount to my total
-    return acc += expense.amount
+    return (acc += expense.amount);
   }, 0);
   return budgetSpent;
 };
 
 // FORMATING
+export const formatDateToLocaleString = (epoch) =>
+  new Date(epoch).toLocaleDateString();
+
 // Formatin percentages
 export const formatPercentage = (amt) => {
-    return amt.toLocaleString(undefined, {
-        style: "percent",
-        minimunFractionDigits: 0
-    })
-}
+  return amt.toLocaleString(undefined, {
+    style: "percent",
+    minimunFractionDigits: 0,
+  });
+};
 
 // Format Currency
 export const formatCurrency = (amt) => {
